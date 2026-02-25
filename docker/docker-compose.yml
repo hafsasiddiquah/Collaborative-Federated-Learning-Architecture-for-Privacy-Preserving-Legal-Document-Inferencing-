@@ -1,0 +1,147 @@
+version: '3.8'
+
+services:
+  # Federated Learning Server
+  fl-server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.server
+    ports:
+      - "8080:8080"
+    environment:
+      - PYTHONPATH=/app
+      - MODEL_REGISTRY_PATH=/app/models
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    volumes:
+      - ./models:/app/models
+      - ./logs:/app/logs
+    networks:
+      - fl-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Inference API Server
+  api-server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+      - MODEL_REGISTRY_PATH=/app/models
+      - API_TOKENS=${API_TOKENS:-default-token}
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    volumes:
+      - ./models:/app/models
+      - ./logs:/app/logs
+    networks:
+      - fl-network
+    depends_on:
+      fl-server:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Example Client 1
+  client-1:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.client
+    environment:
+      - PYTHONPATH=/app
+      - HF_HOME=/app/model_cache
+      - CLIENT_ID=client_1
+      - SERVER_ADDRESS=fl-server:8080
+      - DATASET_PATH=/app/data
+    volumes:
+      - ./data:/app/data
+      - ./model_cache:/app/model_cache
+      - ./logs:/app/logs
+    networks:
+      - fl-network
+    depends_on:
+      fl-server:
+        condition: service_healthy
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    command: ["python", "-m", "client.fl_client",
+              "--server-address", "fl-server:8080",
+              "--client-id", "client_1",
+              "--dataset-path", "/app/data"]
+
+  # Example Client 2
+  client-2:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.client
+    environment:
+      - PYTHONPATH=/app
+      - HF_HOME=/app/model_cache
+      - CLIENT_ID=client_2
+      - SERVER_ADDRESS=fl-server:8080
+      - DATASET_PATH=/app/data
+    volumes:
+      - ./data:/app/data
+      - ./model_cache:/app/model_cache
+      - ./logs:/app/logs
+    networks:
+      - fl-network
+    depends_on:
+      fl-server:
+        condition: service_healthy
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    command: ["python", "-m", "client.fl_client",
+              "--server-address", "fl-server:8080",
+              "--client-id", "client_2",
+              "--dataset-path", "/app/data"]
+
+  # Monitoring (Optional)
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+  #   networks:
+  #     - fl-network
+
+  # Frontend Web App
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+    ports:
+      - "8081:80"
+    networks:
+      - fl-network
+    depends_on:
+      api-server:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  fl-network:
+    driver: bridge
+
+volumes:
+  grafana_data:

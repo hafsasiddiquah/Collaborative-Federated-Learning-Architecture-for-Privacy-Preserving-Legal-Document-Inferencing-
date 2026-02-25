@@ -1,0 +1,127 @@
+# Secure Federated Learning Configuration
+# Production-ready configuration for legal document summarization
+
+# Model Configuration
+model:
+  name: "google/pegasus-xsum"
+  cache_dir: "./model_cache"
+  max_length: 1024
+  max_target_length: 256
+
+# LoRA Configuration
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.1
+  target_modules: ["q_proj", "v_proj", "k_proj", "o_proj", "fc1", "fc2"]
+
+# Quantization Configuration
+quantization:
+  use_4bit: false
+  bnb_4bit_compute_dtype: "float16"
+  bnb_4bit_quant_type: "nf4"
+  bnb_4bit_use_double_quant: true
+
+# Training Configuration
+training:
+  learning_rate: 2e-4
+  num_epochs: 3
+  batch_size: 2
+  gradient_accumulation_steps: 2
+  max_grad_norm: 1.0
+  warmup_steps: 10
+  use_fp16: false
+  device: "cpu"
+
+# Differential Privacy Configuration
+differential_privacy:
+  enabled: true
+  noise_multiplier: 1.0
+  max_grad_norm: 1.0
+  target_epsilon: null  # null for automatic tracking
+  target_delta: 1e-5
+
+# Federated Learning Configuration
+federated_learning:
+  num_rounds: 3
+  min_clients: 2
+  fraction_fit: 1.0
+  fraction_evaluate: 1.0
+  local_epochs: 1
+
+# Security Configuration
+security:
+  encryption_enabled: true
+  tls_enabled: true
+  cert_path: null  # Set in production
+  key_path: null   # Set in production
+  ca_path: null    # Set in production
+
+# Poisoning Detection Configuration
+poisoning_detection:
+  enabled: true
+  similarity_threshold: 0.5
+  gradient_norm_threshold: 10.0
+
+# Server-side DP Configuration
+server_dp:
+  enabled: false
+  noise_multiplier: 0.1
+  max_norm: 1.0
+
+# Dataset Configuration
+dataset:
+  name: "pile-of-law/pile-of-law"
+  cache_dir: "./data_cache"
+  num_samples: 1000
+  train_split: 0.8
+  val_split: 0.1
+  test_split: 0.1
+
+# Evaluation Configuration
+evaluation:
+  bleu_threshold: 0.3  # Minimum BLEU for model deployment
+  rouge_threshold: 0.4  # Minimum ROUGE-1 for model deployment
+  perplexity_threshold: 50.0  # Maximum perplexity for model deployment
+
+# AWS Configuration
+aws:
+  region: "us-east-1"
+  s3_bucket: "secure-legal-fl-models"
+  kms_key_id: null  # Set in production
+  ec2_instance_type: "t3.medium"
+  ec2_ami: "ami-0abcdef1234567890"  # Ubuntu 22.04 LTS
+
+# API Configuration
+api:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  rate_limit: 100  # requests per minute
+  timeout: 300  # seconds
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/secure_fl.log"
+
+# Metrics Configuration
+metrics:
+  enabled: true
+  tracking_interval: 60  # seconds
+  retention_days: 30
+
+# Model Registry Configuration
+model_registry:
+  enabled: true
+  base_path: "./models"
+  versioning: true
+  auto_cleanup: true
+  max_versions: 10
+
+# Development Configuration
+development:
+  debug: false
+  mock_data: false
+  skip_validation: false
