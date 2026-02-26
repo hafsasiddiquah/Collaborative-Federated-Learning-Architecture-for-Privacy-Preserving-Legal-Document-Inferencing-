@@ -15,11 +15,13 @@ pip-delete-this-directory.txt
 .coverage.*
 .pytest_cache/
 
-# Model and data caches
+# Model and data caches (but allow source files)
 model_cache/
 data_cache/
 models/
-data/
+data_cache/
+data/*/  # Ignore subdirectories in data/
+!data/*.py  # But track Python source files in data/
 logs/
 results/
 
