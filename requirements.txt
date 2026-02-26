@@ -1,49 +1,66 @@
 # Secure Federated Learning for Legal Document Summarization
 # Production-grade dependencies for research publication
 
-# Core ML and Deep Learning
+# Core ML/DL Framework
 torch>=2.0.0
-transformers>=4.35.0
-datasets>=2.14.0
-accelerate>=0.24.0
+torchvision>=0.15.0
+torchaudio>=1.0.0
 
-# Federated Learning Framework
-flwr>=1.5.0
-
-# Parameter-Efficient Fine-Tuning
-peft>=0.6.0
+# Transformer Models & Fine-tuning
+transformers>=4.35.0,<5.0.0
+peft>=0.6.0,<0.8.0
 bitsandbytes>=0.41.0
+
+# Federated Learning
+flwr>=1.5.0,<2.0.0
+ray>=2.0.0  # Required for flwr simulation
+
+# Data Processing & Loading
+datasets>=2.14.0,<3.0.0
+pandas>=2.0.0,<3.0.0
+numpy>=1.24.0,<2.0.0
+
+# Evaluation Metrics
+rouge-score>=0.1.2
+nltk>=3.8.1
+sacrebleu>=2.3.0
+
+# Configuration Management
+pyyaml>=6.0,<7.0.0
+python-dotenv>=1.0.0
+
+# Visualization & Plotting
+matplotlib>=3.8.0
+seaborn>=0.13.0
+
+# Utilities
+tqdm>=4.66.0
+requests>=2.31.0
 
 # Differential Privacy
 opacus>=1.4.0
 
-# Cryptography and Security
+# Security & Cryptography
 cryptography>=41.0.0
 pyopenssl>=23.2.0
 
-# Evaluation Metrics
-rouge-score>=0.1.2
-sacrebleu>=2.3.0
-nltk>=3.8.1
-
-# Data Processing
-numpy>=1.24.0
-pandas>=2.0.0
-scipy>=1.11.0
-
-# Utilities
-tqdm>=4.66.0
-pyyaml>=6.0
-python-dotenv>=1.0.0
-
-# AWS SDK (for EC2 deployment)
-boto3>=1.28.0
-
-# Development and Testing
+# Development & Testing
 pytest>=7.4.0
 pytest-cov>=4.1.0
 black>=23.9.0
 flake8>=6.1.0
+
+# Logging & Monitoring
+wandb>=0.16.0
+
+# Additional Dependencies
+scikit-learn>=1.3.0
+scipy>=1.11.0
+Pillow>=10.0.0
+accelerate>=0.24.0
+
+# Optional: AWS SDK for EC2 deployment
+boto3>=1.28.0
 
 # Optional: Jupyter for experimentation
 jupyter>=1.0.0

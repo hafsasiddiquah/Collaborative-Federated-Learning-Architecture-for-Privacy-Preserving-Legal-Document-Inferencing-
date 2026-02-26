@@ -100,7 +100,7 @@ class PerformanceBenchmark:
                 "correctness": correct
             }
 
-            print(".3f"
+            print(".3f")
         return results
 
     def benchmark_dp_tradeoffs(self, noise_multipliers: List[float] = [0.1, 0.5, 1.0, 2.0]) -> Dict:
@@ -163,7 +163,7 @@ class PerformanceBenchmark:
                 "convergence_rate": (losses[0] - losses[-1]) / losses[0] if losses[0] > 0 else 0
             }
 
-            print(".3f"
+            print(".3f")
         return results
 
     def benchmark_fl_convergence(self, num_clients: List[int] = [3, 5, 10], num_rounds: int = 5) -> Dict:
@@ -290,7 +290,7 @@ class PerformanceBenchmark:
                 "std_false_positive_rate": np.std(false_positives)
             }
 
-            print(".3f"
+            print(".3f")
         return results
 
     def benchmark_inference_performance(self, model_sizes: List[str] = ["small", "medium"]) -> Dict:
@@ -343,7 +343,7 @@ class PerformanceBenchmark:
                 "model_params": sum(p.numel() for p in model.parameters())
             }
 
-            print(".3f"
+            print(".3f")
         return results
 
     def run_full_benchmark(self) -> Dict:
@@ -366,7 +366,7 @@ class PerformanceBenchmark:
         total_time = time.time() - start_time
         results["total_benchmark_time"] = total_time
 
-        print(".1f"
+        print(".1f")
         return results
 
     def save_results(self, results: Dict, filename: Optional[str] = None):

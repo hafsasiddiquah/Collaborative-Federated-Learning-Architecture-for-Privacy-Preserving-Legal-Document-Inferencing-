@@ -80,10 +80,14 @@ class FederatedLearningRunner:
 
         # Load a small subset for demonstration
         try:
-            dataset = self.dataset_loader.load_dataset(split="train[:1000]")  # Small subset
-        except:
+            # Use load_dataset method with explicit config for pile-of-law
+            dataset = self.dataset_loader.load_dataset(
+                num_samples=1000,  # Limit to 1000 samples for speed
+                config="courtlistener_opinions"  # Specify config for pile-of-law
+            )
+        except Exception as e:
             # Create synthetic data if dataset loading fails
-            print("⚠️  Dataset loading failed, creating synthetic data...")
+            print(f"⚠️  Dataset loading failed ({e}), creating synthetic data...")
             dataset = self._create_synthetic_dataset()
 
         # Split into client datasets (simulate 3 clients)
@@ -120,8 +124,17 @@ class FederatedLearningRunner:
 
         return synthetic_data
 
-    def _split_dataset_for_clients(self, dataset: List[Dict], num_clients: int = 3) -> List[List[Dict]]:
+    def _split_dataset_for_clients(self, dataset, num_clients: int = 3) -> List:
         """Split dataset into client-specific subsets."""
+        from datasets import Dataset as HFDataset
+
+        # Convert HuggingFace Dataset to list of dictionaries if needed
+        if isinstance(dataset, HFDataset):
+            dataset = [
+                {key: item[key] for key in dataset.column_names}
+                for item in dataset
+            ]
+
         client_datasets = []
         dataset_size = len(dataset)
         client_size = dataset_size // num_clients
